@@ -31,15 +31,20 @@ pipeline {
         }
 
         stage('Deploy to DEV') {
-            steps {}
+            steps {
+                echo 'TODO'
+            }
         }
 
         stage('Deploy to TEST') {
-            steps {}
+            steps {
+                echo 'TODO'
+            }
         }
 
         stage('Deploy to PROD') {
             steps {
+                echo 'TODO'
                 // You should be pretty sure that it works by now :-)
                 // TODO: Add Manual Approval step.
             }
