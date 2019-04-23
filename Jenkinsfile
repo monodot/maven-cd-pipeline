@@ -1,12 +1,11 @@
 pipeline {
 
+    agent {
+        label 'maven'
+    }
+
     stages {
         stage('App Build') {
-            agent {
-                node {
-                    label 'maven'
-                }
-            }
 
             steps {
                 echo '💙 Deploying to artifact repository...'
@@ -15,11 +14,6 @@ pipeline {
         }
 
         stage('Bake') {
-            agent {
-                node {
-                    label 'maven'
-                }
-            }
             steps {
                 echo 'Download artifact from repository'
                 sh '''
@@ -37,27 +31,12 @@ pipeline {
         }
 
         stage('Deploy to DEV') {
-            agent {
-                node {
-                    label 'maven'
-                }
-            }
         }
 
         stage('Deploy to TEST') {
-            agent {
-                node {
-                    label 'maven'
-                }
-            }
         }
 
         stage('Deploy to PROD') {
-            agent {
-                node {
-                    label 'maven'
-                }
-            }
             // You should be pretty sure that it works by now :-)
             // TODO: Add Manual Approval step.
         }
