@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.4.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<groupId>com.cleverbuilder.examples</groupId>
+	<artifactId>maven-cd-app</artifactId>
+
+	<!-- Increment the major and minor version numbers manually, e.g. when introducing breaking changes -->
+	<version>1.0.${revision}</version>
+
+	<name>Clever Builder :: Examples :: Maven CD App</name>
+	<description>Demo of a Java Maven app using Continuous Deployment approach</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<revision>0-SNAPSHOT</revision>
+		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
+	</properties>
+
+	<scm>
+		<!-- Define a connection to the Git repo so that Maven can do Git tagging by itself -->
+		<connection>scm:git:https://github.com/monodot/maven-cd-pipeline.git</connection>
+	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>my-nexus</id>
+			<url>http://nexus/repositories/releases/</url>
+		</repository>
+	</distributionManagement>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+<!--
+				<version>${maven-scm-plugin.version}</version>
+-->
+				<configuration>
+					<tag>${project.artifactId}-${project.version}</tag>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
