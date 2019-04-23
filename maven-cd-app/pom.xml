@@ -34,7 +34,8 @@
 	<distributionManagement>
 		<repository>
 			<id>my-nexus</id>
-			<url>http://nexus:8081/repository/maven-releases/</url>
+			<!-- Specifying the username/password inline. Never do this! -->
+			<url>http://admin:admin123@nexus:8081/repository/maven-releases/</url>
 		</repository>
 	</distributionManagement>
 
