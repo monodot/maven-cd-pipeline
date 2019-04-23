@@ -16,7 +16,7 @@ pipeline {
 
             steps {
                 echo '💙 Deploying to artifact repository...'
-                sh "mvn -B deploy scm:tag -Drevision=${env.BUILD_NUMBER}"
+                sh "mvn -B deploy scm:tag -Drevision=${env.BUILD_NUMBER} -f ${env.POM_FILE}"
             }
         }
 
