@@ -1,3 +1,10 @@
+openshift.withCluster() {
+    env.NAMESPACE = openshift.project()
+    env.POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
+
+}
+
+
 pipeline {
 
     agent {

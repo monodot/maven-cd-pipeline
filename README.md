@@ -2,6 +2,10 @@
 
 An example pipeline for continuous deployment of a Java Maven application (with release/versioning) on OpenShift.
 
+This assumes that:
+
+- You're running the version of Jenkins that comes bundled with OpenShift - because the _Jenkinsfile_ assumes a Jenkins agent node `maven` is defined.
+
 ## Deploy on OpenShift
 
 To deploy on an OpenShift cluster, first create a Nexus instance if one doesn't already exist:
