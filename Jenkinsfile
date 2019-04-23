@@ -31,14 +31,18 @@ pipeline {
         }
 
         stage('Deploy to DEV') {
+            steps {}
         }
 
         stage('Deploy to TEST') {
+            steps {}
         }
 
         stage('Deploy to PROD') {
-            // You should be pretty sure that it works by now :-)
-            // TODO: Add Manual Approval step.
+            steps {
+                // You should be pretty sure that it works by now :-)
+                // TODO: Add Manual Approval step.
+            }
         }
     }
 }
