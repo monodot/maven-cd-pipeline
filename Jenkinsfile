@@ -9,7 +9,7 @@ def getPomFilePath(buildContextDir) {
     if (buildContextDir == '') {
         return "pom.xml"
     } else {
-        return ""${buildContextDir}/pom.xml"
+        return "${buildContextDir}/pom.xml"
     }
 }
 
