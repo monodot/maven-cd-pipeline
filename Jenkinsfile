@@ -27,6 +27,7 @@ pipeline {
         ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
 //        BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
 
+/*
         env.DEPLOY_VERSION = sh (returnStdout: true, script: "docker run --rm -v '${env.WORKSPACE}':/repo:ro softonic/ci-version:0.1.0 --compatible-with package.json").trim()
         e
 
@@ -36,6 +37,7 @@ pipeline {
 
         git remote remove origin
         git remote add origin https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@${GIT_SERVER_NAME}/${GIT_PROJECT_NAME}/${GIT_REPO_NAME}
+*/
 
     }
 
