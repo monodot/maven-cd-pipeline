@@ -71,18 +71,20 @@ pipeline {
                 sh 'mvn -B dependency:copy -Dartifact=${GROUP_ID}:${ARTIFACT_ID}:${BUILD_REVISION} -DoutputDirectory=.'
                 sh 'mv ${ARTIFACT_ID}-${BUILD_REVISION}.jar application.jar'
 
-                openshift.withCluster() {
-                    openshift.withCredentials() {
-                        openshift.withProject() {
-                            // Update the output image tag of the BuildConfig to the new build revision
-                            openshift.patch("bc/${APPLICATION_NAME}",
-                                    "{ \"spec\": { \"output\": { \"to\": { \"name\": \"${APPLICATION_NAME}:${BUILD_REVISION}\"}}}}"
-                            )
+                script {
+                    openshift.withCluster() {
+                        openshift.withCredentials() {
+                            openshift.withProject() {
+                                // Update the output image tag of the BuildConfig to the new build revision
+                                openshift.patch("bc/${APPLICATION_NAME}",
+                                        "{ \"spec\": { \"output\": { \"to\": { \"name\": \"${APPLICATION_NAME}:${BUILD_REVISION}\"}}}}"
+                                )
 
-                            // Start the build, streaming in the binary JAR file
-                            def buildConfig = openshift.selector("bc", "${APPLICATION_NAME}")
-                            def build = buildConfig.startBuild('--from-file=application.jar')
-                            build.logs('-f')
+                                // Start the build, streaming in the binary JAR file
+                                def buildConfig = openshift.selector("bc", "${APPLICATION_NAME}")
+                                def build = buildConfig.startBuild('--from-file=application.jar')
+                                build.logs('-f')
+                            }
                         }
                     }
                 }
