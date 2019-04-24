@@ -24,41 +24,30 @@ pipeline {
 
         POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
 
-//        NV_NAME = "${env.BRANCH_NAME == "develop" ? "staging" : "production"}"
-//        POM_FILE = "${BUILD_CONTEXT_DIR != '' ? ''}"
-
-//        if (BUILD_CONTEXT_DIR != '') {
-//            POM_FILE = "${BUILD_CONTEXT_DIR}/pom.xml"
-//        } else {
-//            POM_FILE = "pom.xml"
-//        }
-
-//        POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
         ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
-        BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
+//        BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
     }
 
     stages {
         stage('App Build') {
 
             steps {
-/*                script {
-                    pom = readMavenPom file: "${POM_FILE}"
-//                    env.POM_GROUP_ID = pom.groupId
-//                    env.POM_VERSION = pom.version
-//                    env.POM_ARTIFACT_ID = pom.artifactId
-//
-                    buildTag = "${pom.artifactId}-${buildRevision}"
-                }*/
+                // TODO We could write code here to instead get the highest numbered tag, and increment it by 1
+
+                echo 'Tagging this commit with the build revision'
+
+                withCredentials([usernamePassword(credentialsId: '${GIT_CREDENTIAL_ID}',
+                        passwordVariable: 'GIT_PASSWORD',
+                        usernameVariable: 'GIT_USERNAME')]) {
+
+                    sh "git config --global user.email jenkins@example.com"
+                    sh "git config --global user.name jenkins"
+                    sh "git tag -fa ${BUILD_TAG} -m 'CI build revision ${BUILD_REVISION}'"
+                    sh "git push origin ${BUILD_TAG}"
+                }
 
                 echo '💙 Deploying to artifact repository...'
-                echo '😉 -DskipTests=true for all the true developers out there'
-
-                // TODO a git tag here
-                sh '''
-                    git tag ${BUILD_TAG}
-                    git push origin ${BUILD_TAG}
-                '''
+                echo '😉 -DskipTests=true, for all the true developers'
                 sh "mvn -B deploy scm:tag -DskipTests=true -Drevision=${BUILD_REVISION} -f ${POM_FILE}"
             }
         }

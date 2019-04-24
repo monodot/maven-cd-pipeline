@@ -19,5 +19,9 @@ Then, assuming you've already got the Jenkins templates installed into your clus
 
 Finally create the pipeline, imagestream and buildconfig:
 
-    $ oc process -f openshift-pipeline.yml -p NAMESPACE=tdonohue-cicd | oc create -f -
+    $ oc process -f openshift-template.yml \
+        -p NAMESPACE=your-namespace-here \
+        -p GIT_USERNAME=jenkinsgitusername \
+        -p GIT_PASSWORD=jenkinsgitpass \
+        | oc create -f -
 
