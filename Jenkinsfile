@@ -59,6 +59,9 @@ pipeline {
                 sh "git config --global user.name jenkins"
                 sh 'git tag -fa ${BUILD_TAG} -m "CI build revision ${BUILD_REVISION}"'
 
+                sh 'git push origin ${BUILD_TAG}'
+
+/*
                 // Create a tag at the HEAD revision
                 // To do this, we need to add credentials so that Jenkins can push tags
                 withCredentials([usernamePassword(credentialsId: '${GIT_CREDENTIAL_ID}',
@@ -66,6 +69,7 @@ pipeline {
                         usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git push origin ${BUILD_TAG}'
                 }
+*/
 
                 echo '💙 Deploying to artifact repository...'
                 echo '😉 -DskipTests=true, for all the true developers'
