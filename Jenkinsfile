@@ -5,6 +5,14 @@ openshift.withCluster() {
 //    env.BUILD_REVISION = now.format("yyyyMMddHHmmss")
 }
 
+def getPomFilePath(buildContextDir) {
+    if (buildContextDir == '') {
+        return "pom.xml"
+    } else {
+        return ""${buildContextDir}/pom.xml"
+    }
+}
+
 pipeline {
 
     agent {
@@ -14,11 +22,16 @@ pipeline {
     environment {
         BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
 
-        if (BUILD_CONTEXT_DIR != '') {
-            POM_FILE = "${BUILD_CONTEXT_DIR}/pom.xml"
-        } else {
-            POM_FILE = "pom.xml"
-        }
+        POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
+
+//        NV_NAME = "${env.BRANCH_NAME == "develop" ? "staging" : "production"}"
+//        POM_FILE = "${BUILD_CONTEXT_DIR != '' ? ''}"
+
+//        if (BUILD_CONTEXT_DIR != '') {
+//            POM_FILE = "${BUILD_CONTEXT_DIR}/pom.xml"
+//        } else {
+//            POM_FILE = "pom.xml"
+//        }
 
 //        POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
         ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
