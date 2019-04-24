@@ -5,38 +5,43 @@ openshift.withCluster() {
 //    env.BUILD_REVISION = now.format("yyyyMMddHHmmss")
 }
 
-def buildTag
-def buildRevision = now.format("yyyyMMddHHmmss")
-
-
 pipeline {
 
     agent {
         label 'maven'
     }
 
+    environment {
+        def now = new Date()
+        BUILD_REVISION = now.format("yyyyMMddHHmmss")
+
+        POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
+        ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
+        BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
+    }
+
     stages {
         stage('App Build') {
 
             steps {
-                script {
+/*                script {
                     pom = readMavenPom file: "${POM_FILE}"
 //                    env.POM_GROUP_ID = pom.groupId
 //                    env.POM_VERSION = pom.version
 //                    env.POM_ARTIFACT_ID = pom.artifactId
 //
                     buildTag = "${pom.artifactId}-${buildRevision}"
-                }
+                }*/
 
                 echo '💙 Deploying to artifact repository...'
                 echo '😉 -DskipTests=true for all the true developers out there'
 
                 // TODO a git tag here
                 sh '''
-                    git tag ${buildTag}
-                    git push origin ${buildTag}
+                    git tag ${BUILD_TAG}
+                    git push origin ${BUILD_TAG}
                 '''
-                sh "mvn -B deploy scm:tag -DskipTests=true -Drevision=${buildRevision} -f ${env.POM_FILE}"
+                sh "mvn -B deploy scm:tag -DskipTests=true -Drevision=${BUILD_REVISION} -f ${POM_FILE}"
             }
         }
 
