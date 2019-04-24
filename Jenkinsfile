@@ -25,7 +25,7 @@ pipeline {
         POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
 
         ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
-        BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
+        BUILD_VERSION = "${ARTIFACT_ID}-${BUILD_REVISION}"
 
 /*
         env.DEPLOY_VERSION = sh (returnStdout: true, script: "docker run --rm -v '${env.WORKSPACE}':/repo:ro softonic/ci-version:0.1.0 --compatible-with package.json").trim()
@@ -50,28 +50,29 @@ pipeline {
                 // and if the sourceSecret attribute is set in the OpenShift BuildConfig,
                 // then the repo will be cloned using the credentials in the Secret.
 
+                sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
 
                 // TODO We could write code here to instead get the highest numbered tag, and increment it by 1
 
                 echo 'Tagging this commit with the build revision'
 
-                sh "git config --global user.email jenkins@example.com"
-                sh "git config --global user.name jenkins"
-                sh 'git tag -fa ${BUILD_TAG} -m "CI build revision ${BUILD_REVISION}"'
+                sh 'git tag -fa ${BUILD_VERSION} -m "CI build revision ${BUILD_REVISION}"'
 
-//                sh 'git push origin ${BUILD_TAG}'
-
-
-//                def scmCred = scm.getUserRemoteConfigs()[0].getCredentialsId()
-
-                input 'pausey'
                 // Create a tag at the HEAD revision
                 // To do this, we need to add credentials so that Jenkins can push tags
+                withCredentials([usernamePassword(credentialsId: '${GIT_CREDENTIAL_ID}',
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_PASSWORD')]) {
+                    sh 'git push origin ${BUILD_VERSION}'
+                }
+
+/*
                 withCredentials([usernamePassword(credentialsId: '${scmCred}',
                         passwordVariable: 'GIT_PASSWORD',
                         usernameVariable: 'GIT_USERNAME')]) {
-                    sh 'git push origin ${BUILD_TAG}'
+                    sh 'git push origin ${BUILD_VERSION}'
                 }
+*/
 
                 echo '💙 Deploying to artifact repository...'
                 echo '😉 -DskipTests=true, for all the true developers'
