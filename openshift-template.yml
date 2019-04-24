@@ -27,18 +27,20 @@ objects:
       source:
         type: Git
         git:
-          uri: ${SOURCE_REPOSITORY_URL}
-          ref: ${SOURCE_REPOSITORY_REF}
-        contextDir: ${CONTEXT_DIR}
+          uri: "${SOURCE_REPOSITORY_URL}"
+          ref: "${SOURCE_REPOSITORY_REF}"
+        contextDir: "${CONTEXT_DIR}"
+        sourceSecret:
+          name: "${SOURCE_SECRET_NAME}"
       triggers:
         - type: "GitHub"
           github:
-            secret: ${GITHUB_WEBHOOK_SECRET}
+            secret: "${GITHUB_WEBHOOK_SECRET}"
         - type: "ConfigChange"
       strategy:
         type: "JenkinsPipeline"
         jenkinsPipelineStrategy:
-          jenkinsfilePath: ${PIPELINE_SCRIPT}
+          jenkinsfilePath: "${PIPELINE_SCRIPT}"
           env:
             - name: "APPLICATION_SOURCE_REPO"
               value: "${APPLICATION_SOURCE_REPO}"
@@ -47,7 +49,7 @@ objects:
             - name: "BUILD_CONTEXT_DIR"
               value: "${APPLICATION_CONTEXT_DIR}"
             - name: "GIT_CREDENTIAL_ID"
-              value: "${NAMESPACE}-${GIT_SECRET_NAME}"
+              value: "${NAMESPACE}-${SOURCE_SECRET_NAME}"
   - apiVersion: v1
     kind: BuildConfig
     metadata:
@@ -75,12 +77,12 @@ objects:
     metadata:
       labels:
         credential.sync.jenkins.openshift.io: "true"
-      name: ${GIT_SECRET_NAME}
+      name: ${SOURCE_SECRET_NAME}
       namespace: '${NAMESPACE}'
     type: Opaque
     stringData:
-      username: '${GIT_USERNAME}'
-      password: '${GIT_PASSWORD}'
+      username: "${GIT_USERNAME}"
+      password: "${GIT_PASSWORD}"
 parameters:
   - description: The name for the application.
     name: APPLICATION_NAME
@@ -95,7 +97,7 @@ parameters:
     value: https://github.com/monodot/maven-cd-pipeline.git
   - description: Git branch/tag reference
     name: SOURCE_REPOSITORY_REF
-    value: "master"
+    value: master
   - description: Path within Git project where Jenkinsfile is located; empty for root project directory.
     name: CONTEXT_DIR
     value:
@@ -111,7 +113,7 @@ parameters:
     required: true
     value: maven-cd-app
   - description: Name of the Git secret to create that Jenkins will use
-    name: GIT_SECRET_NAME
+    name: SOURCE_SECRET_NAME
     required: true
     value: maven-cd-app-git
   - description: Path within Git project pointing to the pipeline run script
