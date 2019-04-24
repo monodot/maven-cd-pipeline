@@ -25,7 +25,7 @@ pipeline {
         POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
 
         ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
-//        BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
+        BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
 
 /*
         env.DEPLOY_VERSION = sh (returnStdout: true, script: "docker run --rm -v '${env.WORKSPACE}':/repo:ro softonic/ci-version:0.1.0 --compatible-with package.json").trim()
@@ -59,17 +59,19 @@ pipeline {
                 sh "git config --global user.name jenkins"
                 sh 'git tag -fa ${BUILD_TAG} -m "CI build revision ${BUILD_REVISION}"'
 
-                sh 'git push origin ${BUILD_TAG}'
+//                sh 'git push origin ${BUILD_TAG}'
 
-/*
+
+                def scmCred = scm.getUserRemoteConfigs()[0].getCredentialsId()
+
+                input 'pausey'
                 // Create a tag at the HEAD revision
                 // To do this, we need to add credentials so that Jenkins can push tags
-                withCredentials([usernamePassword(credentialsId: '${GIT_CREDENTIAL_ID}',
+                withCredentials([usernamePassword(credentialsId: '${scmCred}',
                         passwordVariable: 'GIT_PASSWORD',
                         usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git push origin ${BUILD_TAG}'
                 }
-*/
 
                 echo '💙 Deploying to artifact repository...'
                 echo '😉 -DskipTests=true, for all the true developers'
