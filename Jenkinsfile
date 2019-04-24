@@ -43,17 +43,14 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                // Declarative pipeline automatically performs a checkout of source code,
-                // but we also want to be able to tag and push back to the repository,
-                // so we do an explicit checkout here to use our Jenkins credentials object.
-                checkout scm: [credentialsId: "${GIT_CREDENTIAL_ID}"]
-            }
-        }
         stage('App Build') {
 
             steps {
+                // Declarative pipeline automatically performs a checkout of source code,
+                // and if the sourceSecret attribute is set in the OpenShift BuildConfig,
+                // then the repo will be cloned using the credentials in the Secret.
+
+
                 // TODO We could write code here to instead get the highest numbered tag, and increment it by 1
 
                 echo 'Tagging this commit with the build revision'
