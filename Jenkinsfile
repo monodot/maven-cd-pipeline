@@ -14,7 +14,13 @@ pipeline {
     environment {
         BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
 
-        POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
+        if (BUILD_CONTEXT_DIR != '') {
+            POM_FILE = "${BUILD_CONTEXT_DIR}/pom.xml"
+        } else {
+            POM_FILE = "pom.xml"
+        }
+
+//        POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
         ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
         BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
     }
