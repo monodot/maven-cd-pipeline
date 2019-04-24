@@ -62,7 +62,7 @@ pipeline {
 //                sh 'git push origin ${BUILD_TAG}'
 
 
-                def scmCred = scm.getUserRemoteConfigs()[0].getCredentialsId()
+//                def scmCred = scm.getUserRemoteConfigs()[0].getCredentialsId()
 
                 input 'pausey'
                 // Create a tag at the HEAD revision
