@@ -64,7 +64,7 @@ pipeline {
 
                 // Create a tag at the HEAD revision
                 // To do this, we need to add credentials so that Jenkins can push tags
-                withCredentials([usernamePassword(credentialsId: '${GIT_CREDENTIAL_ID}',
+                withCredentials([usernamePassword(credentialsId: GIT_CREDENTIAL_ID,
                         usernameVariable: 'GIT_USERNAME',
                         passwordVariable: 'GIT_PASSWORD')]) {
                     sh 'git push origin ${BUILD_VERSION}'
