@@ -26,9 +26,27 @@ pipeline {
 
         ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
 //        BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
+
+        env.DEPLOY_VERSION = sh (returnStdout: true, script: "docker run --rm -v '${env.WORKSPACE}':/repo:ro softonic/ci-version:0.1.0 --compatible-with package.json").trim()
+        e
+
+        GIT_SERVER_NAME=$(echo ${GIT_URL} | cut -d'/' -f3)
+        GIT_PROJECT_NAME=$(echo ${GIT_URL} | cut -d'/' -f4)
+        GIT_REPO_NAME=$(echo ${GIT_URL} | cut -d'/' -f5)
+
+        git remote remove origin
+        git remote add origin https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@${GIT_SERVER_NAME}/${GIT_PROJECT_NAME}/${GIT_REPO_NAME}
+
     }
 
     stages {
+
+        stage('Checkout') {
+            // Declarative pipeline automatically performs a checkout of source code,
+            // but we also want to be able to tag and push back to the repository,
+            // so we do an explicit checkout here to use our Jenkins credentials object.
+            checkout scm: credentialsId: ${GIT_CREDENTIAL_ID}
+        }
         stage('App Build') {
 
             steps {
@@ -36,12 +54,15 @@ pipeline {
 
                 echo 'Tagging this commit with the build revision'
 
+                sh "git config --global user.email jenkins@example.com"
+                sh "git config --global user.name jenkins"
+
+                // Create a tag at the HEAD revision
+                // To do this, we need to add credentials so that Jenkins can push tags
                 withCredentials([usernamePassword(credentialsId: '${GIT_CREDENTIAL_ID}',
                         passwordVariable: 'GIT_PASSWORD',
                         usernameVariable: 'GIT_USERNAME')]) {
-
-                    sh "git config --global user.email jenkins@example.com"
-                    sh "git config --global user.name jenkins"
+                    sh "git remote set-url origin ${GIT_REPO_URL_WITH_CREDENTIALS}"
                     sh "git tag -fa ${BUILD_TAG} -m 'CI build revision ${BUILD_REVISION}'"
                     sh "git push origin ${BUILD_TAG}"
                 }
