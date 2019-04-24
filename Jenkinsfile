@@ -47,7 +47,7 @@ pipeline {
             // Declarative pipeline automatically performs a checkout of source code,
             // but we also want to be able to tag and push back to the repository,
             // so we do an explicit checkout here to use our Jenkins credentials object.
-            checkout scm: credentialsId: ${GIT_CREDENTIAL_ID}
+            checkout scm: [ credentialsId: "${GIT_CREDENTIAL_ID}" ]
         }
         stage('App Build') {
 
