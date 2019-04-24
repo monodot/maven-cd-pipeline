@@ -50,7 +50,11 @@ pipeline {
                 // and if the sourceSecret attribute is set in the OpenShift BuildConfig,
                 // then the repo will be cloned using the credentials in the Secret.
 
+                // Create a custom credential helper that will return the username/password
+                // to the repository, so we don't have to fiddle with the repo URL
                 sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+                sh "git config --global user.email jenkins@example.com"
+                sh "git config --global user.name jenkins"
 
                 // TODO We could write code here to instead get the highest numbered tag, and increment it by 1
 
