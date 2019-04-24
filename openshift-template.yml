@@ -42,6 +42,8 @@ objects:
         jenkinsPipelineStrategy:
           jenkinsfilePath: "${PIPELINE_SCRIPT}"
           env:
+            - name: "APPLICATION_NAME"
+              value: "${APPLICATION_NAME}"
             - name: "APPLICATION_SOURCE_REPO"
               value: "${APPLICATION_SOURCE_REPO}"
             - name: "APPLICATION_SOURCE_REF"

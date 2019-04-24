@@ -2,7 +2,6 @@ openshift.withCluster() {
     env.NAMESPACE = openshift.project()
 
     env.POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
-//    env.BUILD_REVISION = now.format("yyyyMMddHHmmss")
 }
 
 def getPomFilePath(buildContextDir) {
@@ -40,8 +39,8 @@ pipeline {
                 // Create a custom credential helper that will return the username/password
                 // to the repository, so we don't have to fiddle with the repo URL
                 sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-                sh "git config --global user.email jenkins@example.com"
-                sh "git config --global user.name jenkins"
+                sh 'git config --global user.email jenkins@example.com'
+                sh 'git config --global user.name jenkins'
 
                 // TODO We could write code here to instead get the highest numbered tag, and increment it by 1
 
@@ -68,12 +67,27 @@ pipeline {
                 echo 'Download artifact from repository'
 
                 // Single quotes turns off string interpolation
-                sh 'mvn dependency:get -DgroupId=${GROUP_ID} -DartifactId=${ARTIFACT_ID} -Dversion=${BUILD_REVISION} -Dtransitive=false'
-                sh 'mvn dependency:copy -Dartifact=${GROUP_ID}:${ARTIFACT_ID}:${BUILD_REVISION} -DoutputDirectory=.'
+                sh 'mvn -B dependency:get -DgroupId=${GROUP_ID} -DartifactId=${ARTIFACT_ID} -Dversion=${BUILD_REVISION} -Dtransitive=false'
+                sh 'mvn -B dependency:copy -Dartifact=${GROUP_ID}:${ARTIFACT_ID}:${BUILD_REVISION} -DoutputDirectory=.'
                 sh 'mv ${ARTIFACT_ID}-${BUILD_REVISION}.jar application.jar'
 
-                sh 'oc patch bc ${APP_NAME} -p "{\\"spec\\":{\\"output\\":{\\"to\\":{\\"kind\\":\\"ImageStreamTag\\",\\"name\\":\\"${APP_NAME}:${JENKINS_TAG}\\"}}}}" -n ${BUILD_NAMESPACE}'
-                sh 'oc start-build ${APP_NAME} --from-file=application.jar --follow -n ${BUILD_NAMESPACE}'
+                openshift.withCluster() {
+                    openshift.withCredentials() {
+                        openshift.withProject() {
+                            // Update the output image tag of the BuildConfig to the new build revision
+                            openshift.patch("bc/${APPLICATION_NAME}",
+                                    "{ \"spec\": { \"output\": { \"to\": { \"name\": \"${APPLICATION_NAME}:${BUILD_REVISION}\"}}}}"
+                            )
+
+                            // Start the build, streaming in the binary JAR file
+                            def buildConfig = openshift.selector("bc", "${APPLICATION_NAME}")
+                            def build = buildConfig.startBuild('--from-file=application.jar')
+                            build.logs('-f')
+                        }
+                    }
+                }
+
+//                sh 'oc start-build ${APPLICATION_NAME} --from-file=application.jar --follow -n ${BUILD_NAMESPACE}'
             }
         }
 
