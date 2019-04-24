@@ -1,8 +1,12 @@
 openshift.withCluster() {
     env.NAMESPACE = openshift.project()
-    env.POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
 
+    env.POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
+//    env.BUILD_REVISION = now.format("yyyyMMddHHmmss")
 }
+
+def buildTag
+def buildRevision = now.format("yyyyMMddHHmmss")
 
 
 pipeline {
@@ -15,15 +19,31 @@ pipeline {
         stage('App Build') {
 
             steps {
+                script {
+                    pom = readMavenPom file: "${POM_FILE}"
+//                    env.POM_GROUP_ID = pom.groupId
+//                    env.POM_VERSION = pom.version
+//                    env.POM_ARTIFACT_ID = pom.artifactId
+//
+                    buildTag = "${pom.artifactId}-${buildRevision}"
+                }
+
                 echo '💙 Deploying to artifact repository...'
-                echo '😉 -DskipTests=true for all the true developers out there '
-                sh "mvn -B deploy scm:tag -DskipTests=true -Drevision=${env.BUILD_NUMBER} -f ${env.POM_FILE}"
+                echo '😉 -DskipTests=true for all the true developers out there'
+
+                // TODO a git tag here
+                sh '''
+                    git tag ${buildTag}
+                    git push origin ${buildTag}
+                '''
+                sh "mvn -B deploy scm:tag -DskipTests=true -Drevision=${buildRevision} -f ${env.POM_FILE}"
             }
         }
 
         stage('Bake') {
             steps {
                 echo 'Download artifact from repository'
+/*
                 sh '''
                     mvn dependency:get -DartifactId=${POM_ARTIFACT_ID} -Dversion=${POM_VERSION} -Dtransitive=false
                     mvn dependency:copy -Dartifact=${POM_GROUP_ID}:${POM_ARTIFACT_ID}:${POM_VERSION} -DoutputDirectory=.
@@ -35,6 +55,7 @@ pipeline {
                     oc patch bc ${APP_NAME} -p "{\\"spec\\":{\\"output\\":{\\"to\\":{\\"kind\\":\\"ImageStreamTag\\",\\"name\\":\\"${APP_NAME}:${JENKINS_TAG}\\"}}}}" -n ${BUILD_NAMESPACE}
                     oc start-build ${APP_NAME} --from-file=application.jar --follow -n ${BUILD_NAMESPACE}
                 '''
+*/
             }
         }
 

@@ -15,7 +15,7 @@
 	<artifactId>maven-cd-app</artifactId>
 
 	<!-- Increment the major and minor version numbers manually, e.g. when introducing breaking changes -->
-	<version>1.0.${revision}</version>
+	<version>${revision}</version>
 
 	<name>Clever Builder :: Examples :: Maven CD App</name>
 	<description>Demo of a Java Maven app using Continuous Deployment approach</description>
@@ -62,9 +62,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-scm-plugin</artifactId>
-<!--
-				<version>${maven-scm-plugin.version}</version>
--->
 				<configuration>
 					<tag>${project.artifactId}-${project.version}</tag>
 				</configuration>
