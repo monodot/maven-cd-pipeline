@@ -12,8 +12,7 @@ pipeline {
     }
 
     environment {
-        def now = new Date()
-        BUILD_REVISION = now.format("yyyyMMddHHmmss")
+        BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
 
         POM_FILE = env.BUILD_CONTEXT_DIR ? "${env.BUILD_CONTEXT_DIR}/pom.xml" : "pom.xml"
         ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
