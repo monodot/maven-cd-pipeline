@@ -28,11 +28,12 @@ pipeline {
                 git url: "${APPLICATION_SOURCE_REPO}", branch: "${APPLICATION_SOURCE_REF}"
 
                 script {
-                    POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
-                    GROUP_ID = readMavenPom(file: "${POM_FILE}").getGroupId()
-                    ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
-                    BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
-                    GIT_BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
+                    env.MAVEN_POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
+                    pom = readMavenPom(file: "${MAVEN_POM_FILE}")
+                    env.MAVEN_GROUP_ID = pom.getGroupId()
+                    env.MAVEN_ARTIFACT_ID = pom.getArtifactId()
+                    env.MAVEN_BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
+                    env.GIT_BUILD_TAG = "${MAVEN_ARTIFACT_ID}-${BUILD_REVISION}"
                 }
             }
         }
@@ -53,7 +54,7 @@ pipeline {
 
                 echo 'Tagging this commit with the build revision'
 
-                sh 'git tag -fa ${GIT_BUILD_TAG} -m "CI build revision ${BUILD_REVISION}"'
+                sh 'git tag -fa -m "CI build revision ${MAVEN_BUILD_REVISION}" ${GIT_BUILD_TAG}'
 
                 // Create a tag at the HEAD revision
                 // To do this, we need to add credentials so that Jenkins can push tags
