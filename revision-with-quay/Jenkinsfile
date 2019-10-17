@@ -33,6 +33,7 @@ pipeline {
                     env.MAVEN_GROUP_ID = pom.getGroupId()
                     env.MAVEN_ARTIFACT_ID = pom.getArtifactId()
                     env.MAVEN_BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
+                    env.MAVEN_FULL_VERSION = pom.getVersion().replace("\${revision}", "") + MAVEN_BUILD_REVISION
                     env.GIT_BUILD_TAG = "${MAVEN_ARTIFACT_ID}-${MAVEN_BUILD_REVISION}"
                 }
             }
@@ -65,22 +66,25 @@ pipeline {
                 }
 
                 // Compile the app into a JAR with Maven, and deploy the JAR to a Nexus
-                echo '💙 Deploying to artifact repository...'
                 echo '😉 -DskipTests=true, for all the true developers'
-                sh "mvn -B deploy -DskipTests=true -Drevision=${MAVEN_BUILD_REVISION} -f ${MAVEN_POM_FILE}"
+                sh "mvn -B clean install -DskipTests=true -Drevision=${MAVEN_BUILD_REVISION} -f ${MAVEN_POM_FILE}"
+
+                // NOTE: We may alternatively deploy to Nexus here, using `clean deploy`
+                // echo '💙 Deploying to artifact repository...'
             }
         }
 
         stage('Bake') {
             steps {
-                echo '🐞 Fetch compiled artifact from Nexus repository'
-
-                // Use Maven to fetch the newly-compiled JAR from Nexus
+                // NOTE: We might fetch the compiled artifact from Nexus here
                 // Reminder: Single quotes disables Groovy string interpolation
-                sh 'mvn -B dependency:get -DgroupId=${MAVEN_GROUP_ID} -DartifactId=${MAVEN_ARTIFACT_ID} -Dversion=${MAVEN_BUILD_REVISION} -Dtransitive=false'
-                sh 'mvn -B dependency:copy -Dartifact=${MAVEN_GROUP_ID}:${MAVEN_ARTIFACT_ID}:${MAVEN_BUILD_REVISION} -DoutputDirectory=.'
-                sh 'mv ${MAVEN_ARTIFACT_ID}-${MAVEN_BUILD_REVISION}.jar application.jar'
+                // echo '🐞 Fetch compiled artifact from Nexus repository'
+                // sh 'mvn -B dependency:get -DgroupId=${MAVEN_GROUP_ID} -DartifactId=${MAVEN_ARTIFACT_ID} -Dversion=${MAVEN_BUILD_REVISION} -Dtransitive=false'
+                // sh 'mvn -B dependency:copy -Dartifact=${MAVEN_GROUP_ID}:${MAVEN_ARTIFACT_ID}:${MAVEN_BUILD_REVISION} -DoutputDirectory=.'
+                // sh 'mv ${MAVEN_ARTIFACT_ID}-${MAVEN_BUILD_REVISION}.jar application.jar'
 
+                sh 'mv target/${MAVEN_ARTIFACT_ID}-${MAVEN_FULL_VERSION}.jar application.jar'
+                
                 //
                 script {
                     openshift.withCluster() {
