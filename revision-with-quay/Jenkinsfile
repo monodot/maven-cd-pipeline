@@ -19,12 +19,6 @@ pipeline {
     }
 
     environment {
-        POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
-        GROUP_ID = readMavenPom(file: "${POM_FILE}").getGroupId()
-        ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
-
-        BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
-        GIT_BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
     }
 
     stages {
@@ -37,6 +31,14 @@ pipeline {
                 // sh 'git config --global http.sslVerify false'
                 git url: "${APPLICATION_SOURCE_REPO}", branch: "${APPLICATION_REF}"
                 //git([url: "${APPLICATION_SOURCE_REPO}", branch: "${APPLICATION_REF}"])
+
+                script {
+                    POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
+                    GROUP_ID = readMavenPom(file: "${POM_FILE}").getGroupId()
+                    ARTIFACT_ID = readMavenPom(file: "${POM_FILE}").getArtifactId()
+                    BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
+                    GIT_BUILD_TAG = "${ARTIFACT_ID}-${BUILD_REVISION}"
+                }
             }
         }
 
