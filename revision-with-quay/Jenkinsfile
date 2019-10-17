@@ -20,6 +20,7 @@ pipeline {
 
     stages {
 
+        /*
         // Fetch the application source code (because it may be in a different repository)
         stage('Git Checkout') {
             steps {
@@ -113,6 +114,7 @@ pipeline {
                 input message: 'Deploy to test?', ok: 'Yes'
             }
         }
+        */
 
         stage('Deploy to TEST') {
             agent {
@@ -125,8 +127,9 @@ pipeline {
                 script {
 //                    env.IMAGE_SRC = openshift.selector( "is/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}" ).object().status.dockerImageRepository
                     
-                    env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}"
-                    env.IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/${APPLICATION_NAME}:test-ready"
+                    env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/revision-with-quay:1.0.20191017141036"
+                    //env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}"
+                    env.IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/revision-with-quay:test-ready"
                     
 //                    openshift.withCluster() {
 //                        openshift.withProject() {
