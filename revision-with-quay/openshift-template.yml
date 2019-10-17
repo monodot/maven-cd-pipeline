@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: maven-cd-app-jenkins-pipeline
+  template: revision-with-quay-jenkins-pipeline
 metadata:
   annotations:
     description: Application template for a Java Maven application with CD
     iconClass: icon-tomcat
     tags: java,jenkins-ci
-  name: maven-cd-app-jenkins-pipeline
+  name: revision-with-quay-jenkins-pipeline
 objects:
   - apiVersion: v1
     kind: ImageStream
@@ -89,7 +89,7 @@ parameters:
   - description: The name for the application.
     name: APPLICATION_NAME
     required: true
-    value: maven-cd-app
+    value: revision-with-quay
   - description: The namespace to deploy into
     name: NAMESPACE
     required: true
@@ -102,25 +102,25 @@ parameters:
     value: master
   - description: Path within Git project where Jenkinsfile is located; empty for root project directory.
     name: CONTEXT_DIR
-    value:
+    value: revision-with-quay
+  - description: Path within Git project pointing to the pipeline run script
+    name: PIPELINE_SCRIPT
+    value: Jenkinsfile
   - description: Source code repo for demo app
     name: APPLICATION_SOURCE_REPO
     required: true
-    value: https://github.com/monodot/maven-cd-pipeline.git
+    value: https://github.com/monodot/simple-camel-app.git
   - description: Source code branch for demo app
     name: APPLICATION_SOURCE_REF
     value: master
   - description: Directory where POM file will be
     name: APPLICATION_CONTEXT_DIR
     required: true
-    value: maven-cd-app
+    value: .
   - description: Name of the Git secret to create that Jenkins will use
     name: SOURCE_SECRET_NAME
     required: true
-    value: maven-cd-app-git
-  - description: Path within Git project pointing to the pipeline run script
-    name: PIPELINE_SCRIPT
-    value: Jenkinsfile
+    value: revision-with-quay-git
   - description: GitHub trigger secret
     from: '[a-zA-Z0-9]{8}'
     generate: expression
