@@ -143,7 +143,7 @@ pipeline {
                             echo '🐦 Copying image to Quaaaaay...'
                             // TODO: This should also be labelled with our version and commit hash
                             //sh "skopeo copy --src-creds openshift:${localToken} --dest-creds openshift:${token} --src-cert-dir=/run/secrets/kubernetes.io/serviceaccount/ --dest-tls-verify=false --authfile /var/run/secrets/kubernetes.io/dockerconfigjson/.dockerconfigjson ${IMAGE_SRC} ${IMAGE_DEST}"
-                            sh "skopeo copy --src-creds openshift:${localToken} --src-cert-dir=/run/secrets/kubernetes.io/serviceaccount/ --dest-tls-verify=false --authfile /var/run/secrets/kubernetes.io/dockerconfigjson/.dockerconfigjson ${IMAGE_SRC} ${IMAGE_DEST}"
+                            sh "skopeo copy --src-creds openshift:${localToken} --dest-creds ${QUAY_USERNAME}:${QUAY_PASSWORD} --src-cert-dir=/run/secrets/kubernetes.io/serviceaccount/ --dest-tls-verify=false  ${IMAGE_SRC} ${IMAGE_DEST}"
                         }
                     }
                     
