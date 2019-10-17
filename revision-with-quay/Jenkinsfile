@@ -28,6 +28,7 @@ pipeline {
                 git url: "${APPLICATION_SOURCE_REPO}", branch: "${APPLICATION_SOURCE_REF}"
 
                 script {
+                    env.GIT_COMMIT_HASH = sh(script:"git rev-parse HEAD", returnStdout: true).trim()
                     env.MAVEN_POM_FILE = getPomFilePath("${BUILD_CONTEXT_DIR}")
                     pom = readMavenPom(file: "${MAVEN_POM_FILE}")
                     env.MAVEN_GROUP_ID = pom.getGroupId()
@@ -97,7 +98,7 @@ pipeline {
 
                                 // Start the build, streaming in the binary JAR file
                                 def buildConfig = openshift.selector("bc", "${APPLICATION_NAME}")
-                                def build = buildConfig.startBuild('--from-file=application.jar')
+                                def build = buildConfig.startBuild("-e ACME_APP_VERSION=${MAVEN_FULL_VERSION} -e ACME_GIT_HASH=${GIT_COMMIT_HASH} --from-file=application.jar")
                                 build.logs('-f')
                             }
                         }
