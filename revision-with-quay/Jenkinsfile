@@ -85,6 +85,7 @@ pipeline {
                 // sh 'mv ${MAVEN_ARTIFACT_ID}-${MAVEN_BUILD_REVISION}.jar application.jar'
 
                 sh 'mv target/${MAVEN_ARTIFACT_ID}-${MAVEN_FULL_VERSION}.jar application.jar'
+                sh "oc set env bc/${APPLICATION_NAME} ACME_APP_VERSION=${MAVEN_FULL_VERSION} ACME_GIT_HASH=${GIT_COMMIT_HASH}"
                 
                 //
                 script {
@@ -98,7 +99,7 @@ pipeline {
 
                                 // Start the build, streaming in the binary JAR file
                                 def buildConfig = openshift.selector("bc", "${APPLICATION_NAME}")
-                                def build = buildConfig.startBuild("-e ACME_APP_VERSION=${MAVEN_FULL_VERSION} -e ACME_GIT_HASH=${GIT_COMMIT_HASH} --from-file=application.jar")
+                                def build = buildConfig.startBuild("--from-file=application.jar")
                                 build.logs('-f')
                             }
                         }
