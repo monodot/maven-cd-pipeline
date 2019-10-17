@@ -122,14 +122,13 @@ pipeline {
             steps {
                 // publish to Quaaaaaay
                 script {
-                    IMAGE_SRC = "docker://docker-registry.default.svc/hello/hello:latest"
-                    IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/hello/hello:latest"
+                    env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}"
+                    env.IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/${APPLICATION_NAME}:test-ready"
                 }
 
                 echo '🐦 Copying image to Quaaaaay...'
-
-                // This should also be labelled with our version and commit hash
-                sh '''skopeo copy --authfile /var/run/secrets/kubernetes.io/dockerconfigjson/.dockerconfigjson ${IMAGE_SRC} ${IMAGE_DEST}'''
+                // TODO: This should also be labelled with our version and commit hash
+                sh "skopeo copy --authfile /var/run/secrets/kubernetes.io/dockerconfigjson/.dockerconfigjson ${IMAGE_SRC} ${IMAGE_DEST}"
             }
         }
     }
