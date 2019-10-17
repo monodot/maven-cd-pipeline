@@ -18,9 +18,6 @@ pipeline {
         label 'maven'
     }
 
-    environment {
-    }
-
     stages {
 
         // Fetch the application source code (because it may be in a different repository)
