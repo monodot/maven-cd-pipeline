@@ -20,7 +20,6 @@ pipeline {
 
     stages {
 
-        /*
         // Fetch the application source code (because it may be in a different repository)
         stage('Git Checkout') {
             steps {
@@ -36,7 +35,7 @@ pipeline {
                     env.MAVEN_ARTIFACT_ID = pom.getArtifactId()
                     env.MAVEN_BUILD_REVISION = new Date().format("yyyyMMddHHmmss")
                     env.MAVEN_FULL_VERSION = pom.getVersion().replace("\${revision}", "") + MAVEN_BUILD_REVISION
-                    env.GIT_BUILD_TAG = "${MAVEN_ARTIFACT_ID}-${MAVEN_BUILD_REVISION}"
+                    env.GIT_BUILD_TAG = "${MAVEN_ARTIFACT_ID}-${MAVEN_FULL_VERSION}"
                 }
             }
         }
@@ -114,7 +113,6 @@ pipeline {
                 input message: 'Deploy to test?', ok: 'Yes'
             }
         }
-        */
 
         stage('Deploy to TEST') {
             agent {
@@ -135,9 +133,9 @@ pipeline {
                         def registry = sh(script:"set +x; echo ${encodedRegistry} | base64 --decode", returnStdout: true)
                         def token = sh(script:"set +x; echo ${encodedToken} | base64 --decode", returnStdout: true)
                         
-                        def IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/revision-with-quay:1.0.20191017141036"
+                        def IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}"
                         //env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}"
-                        def IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/acme/revision-with-quay:test-ready"
+                        def IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/acme/${APPLICATION_NAME}:test-ready"
 
                         openshift.withProject() {
                             echo '🐦 Copying image to Quaaaaay...'
@@ -146,14 +144,6 @@ pipeline {
                             sh "skopeo copy --src-creds openshift:${localToken} --dest-creds ${QUAY_USERNAME}:${QUAY_PASSWORD} --src-cert-dir=/run/secrets/kubernetes.io/serviceaccount/ --dest-tls-verify=false  ${IMAGE_SRC} ${IMAGE_DEST}"
                         }
                     }
-                    
-                    
-//                    env.IMAGE_SRC = openshift.selector( "is/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}" ).object().status.dockerImageRepository
-                    
-                    
-//                    openshift.withCluster() {
-//                        openshift.withProject() {
-//                            def srcImage = openshift.selector( 'is', "${APPLICATION_NAME}").object().status.dockerImageRepository
                 }
 
             }
