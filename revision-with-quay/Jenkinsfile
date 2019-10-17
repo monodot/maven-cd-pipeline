@@ -125,20 +125,36 @@ pipeline {
             steps {
                 // publish to Quaaaaaay
                 script {
+                    // See: https://github.com/redhat-cop/container-pipelines/blob/master/multi-cluster-spring-boot/skopeo-example/Jenkinsfile
+                    openshift.withCluster() {
+                        def localToken = readFile('/var/run/secrets/kubernetes.io/serviceaccount/token').trim()
+                        
+                        def secretData = openshift.selector('secret/prod-credentials').object().data
+                        def encodedRegistry = secretData.registry
+                        def encodedToken = secretData.token
+                        def registry = sh(script:"set +x; echo ${encodedRegistry} | base64 --decode", returnStdout: true)
+                        def token = sh(script:"set +x; echo ${encodedToken} | base64 --decode", returnStdout: true)
+                        
+                        def IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/revision-with-quay:1.0.20191017141036"
+                        //env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}"
+                        def IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/revision-with-quay:test-ready"
+
+                        openshift.withProject() {
+                            echo '🐦 Copying image to Quaaaaay...'
+                            // TODO: This should also be labelled with our version and commit hash
+                            sh "skopeo copy --src-creds openshift:${localToken} --dest-creds openshift:${token} --src-cert-dir=/run/secrets/kubernetes.io/serviceaccount/ --dest-tls-verify=false --authfile /var/run/secrets/kubernetes.io/dockerconfigjson/.dockerconfigjson ${IMAGE_SRC} ${IMAGE_DEST}"
+                        }
+                    }
+                    
+                    
 //                    env.IMAGE_SRC = openshift.selector( "is/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}" ).object().status.dockerImageRepository
                     
-                    env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/revision-with-quay:1.0.20191017141036"
-                    //env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}"
-                    env.IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/revision-with-quay:test-ready"
                     
 //                    openshift.withCluster() {
 //                        openshift.withProject() {
 //                            def srcImage = openshift.selector( 'is', "${APPLICATION_NAME}").object().status.dockerImageRepository
                 }
 
-                echo '🐦 Copying image to Quaaaaay...'
-                // TODO: This should also be labelled with our version and commit hash
-                sh "skopeo copy --src-cert-dir=/run/secrets/kubernetes.io/serviceaccount/ --authfile /var/run/secrets/kubernetes.io/dockerconfigjson/.dockerconfigjson ${IMAGE_SRC} ${IMAGE_DEST}"
             }
         }
     }
