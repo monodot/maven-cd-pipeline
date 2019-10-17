@@ -129,7 +129,7 @@ pipeline {
                     openshift.withCluster() {
                         def localToken = readFile('/var/run/secrets/kubernetes.io/serviceaccount/token').trim()
                         
-                        def secretData = openshift.selector('secret/prod-credentials').object().data
+                        def secretData = openshift.selector('secret/quay').object().data
                         def encodedRegistry = secretData.registry
                         def encodedToken = secretData.token
                         def registry = sh(script:"set +x; echo ${encodedRegistry} | base64 --decode", returnStdout: true)
@@ -137,7 +137,7 @@ pipeline {
                         
                         def IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/revision-with-quay:1.0.20191017141036"
                         //env.IMAGE_SRC = "docker://docker-registry.default.svc:5000/tad-cicd/${APPLICATION_NAME}:${MAVEN_FULL_VERSION}"
-                        def IMAGE_DEST = "docker://quay-03ae.apps.shared.na.openshift.opentlc.com/revision-with-quay:test-ready"
+                        def IMAGE_DEST = "docker://${registry}/acme/revision-with-quay:test-ready"
 
                         openshift.withProject() {
                             echo '🐦 Copying image to Quaaaaay...'
