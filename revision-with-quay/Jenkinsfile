@@ -92,7 +92,7 @@ pipeline {
                             openshift.withProject() {
                                 // Update the output image tag of the BuildConfig to the new build revision
                                 openshift.patch("bc/${APPLICATION_NAME}",
-                                        "{ \"spec\": { \"output\": { \"to\": { \"name\": \"${APPLICATION_NAME}:${MAVEN_BUILD_REVISION}\"}}}}"
+                                        "'{ \"spec\": { \"output\": { \"to\": { \"name\": \"${APPLICATION_NAME}:${MAVEN_FULL_VERSION}\"}}}}'"
                                 )
 
                                 // Start the build, streaming in the binary JAR file
