@@ -4,8 +4,8 @@ labels:
   template: revision-with-quay-jenkins-pipeline
 metadata:
   annotations:
-    description: Application template for a Java Maven application with CD
-    iconClass: icon-tomcat
+    description: OpenShift pipeline build for a Java application which uses consecutive build numbering and integration with Quay external registry
+    iconClass: icon-java
     tags: java,jenkins-ci
   name: revision-with-quay-jenkins-pipeline
 objects:
@@ -52,6 +52,10 @@ objects:
               value: "${APPLICATION_CONTEXT_DIR}"
             - name: "GIT_CREDENTIAL_ID"
               value: "${NAMESPACE}-${SOURCE_SECRET_NAME}"
+            - name: "QUAY_USERNAME"
+              value: ""
+            - name: "QUAY_PASSWORD"
+              value: ""
   - apiVersion: v1
     kind: BuildConfig
     metadata:
@@ -86,10 +90,6 @@ objects:
       username: "${GIT_USERNAME}"
       password: "${GIT_PASSWORD}"
 parameters:
-  - description: The name for the application.
-    name: APPLICATION_NAME
-    required: true
-    value: revision-with-quay
   - description: The namespace to deploy into
     name: NAMESPACE
     required: true
@@ -106,10 +106,14 @@ parameters:
   - description: Path within Git project pointing to the pipeline run script
     name: PIPELINE_SCRIPT
     value: Jenkinsfile
+  - description: The name for the application.
+    name: APPLICATION_NAME
+    required: true
+    value: hello-java
   - description: Source code repo for demo app
     name: APPLICATION_SOURCE_REPO
     required: true
-    value: https://github.com/monodot/simple-camel-app.git
+    value: https://github.com/monodot/hello-java.git
   - description: Source code branch for demo app
     name: APPLICATION_SOURCE_REF
     value: master
@@ -117,7 +121,7 @@ parameters:
     name: APPLICATION_CONTEXT_DIR
     required: true
     value: .
-  - description: Name of the Git secret to create that Jenkins will use
+  - description: Name of the Git secret that Jenkins will use to commit to the application repo
     name: SOURCE_SECRET_NAME
     required: true
     value: revision-with-quay-git
